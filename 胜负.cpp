@@ -1,123 +1,81 @@
-#include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #define BLACK 1
 #define WHITE -1
 #define EMPTY 0
-#define N 5
+#define N 15
 
-void win(const char* x, int con)//return who is winner
+int inBoard(int row, int col)
 {
-	if (con < 5)con = 0;
-	else if(con==5)
-	{
-		printf("%sÓ®ÁË", x);
-		exit(0);
-	}
+    return row >= 0 && row < N && col >= 0 && col < N;
 }
 
-void search(int arr[N][N], int m, int n, const char* x,const int y)//search the next five smile colour chess
+void win(const char* player)
 {
-	int con,t,v;
-	t = m, v = n;
-	con = 0;
-	while (arr[m][n] == y)
-	{
-		m++;
-		con++;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		n++;
-		con++;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		con++;
-		m++, n++;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		con++;
-		m++, n--;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		m--;
-		con++;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		n--;
-		con++;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		con++;
-		m--, n++;
-	}
-	win(x, con);
-	m = t, n = v;
-	while (arr[m][n] == y)
-	{
-		con++;
-		m--, n--;
-	}
-	win(x, con);
-	m = t, n = v;
+    printf("%s èµ¢äº†\n", player);
+    exit(0);
 }
 
-void Win_Or_Lose(int arr[N][N],int getMouse)
+int countDirection(int board[N][N], int row, int col, int color, int dx, int dy)
 {
-	if (getMouse == BLACK)//get the data from getmouse if it's black
-	{
-		int i = 0;
-		for (i = 0; i < N; i++)
-		{
-			int j = 0;
-			for (j = 0; j < N; j++)//
-				if (arr[i][j] == BLACK)//traverse black
-				{
-						search(arr, i, j, "BLACK", BLACK);//search all directions of this black chess
-				}
-		}
-	}
-	else//get the data from getmouse if it's white
-	{
-		int i;
-		for (i = 0; i < N; i++)
-		{
-			int j;
-			for (j = 0; j < N; j++)
-				if (arr[i][j] ==WHITE)//traverse white
-				{
-						search(arr, i, j,"WHITE",WHITE);//search all directions of this white chess
-				}
-		}
-	}
+    int count = 1;
+
+    int r = row + dx;
+    int c = col + dy;
+
+    while (inBoard(r, c) && board[r][c] == color)
+    {
+        count++;
+        r += dx;
+        c += dy;
+    }
+
+    r = row - dx;
+    c = col - dy;
+
+    while (inBoard(r, c) && board[r][c] == color)
+    {
+        count++;
+        r -= dx;
+        c -= dy;
+    }
+
+    return count;
 }
 
-/*int main()
-{	
-	int arr[N][N] = {
-					  { 1, 1 , 1 ,1, 1 },
-					  { 0,-1 , 0 ,1, 0 }, 
-					  { 0, 0 , 1 ,0, 0 },
-					  { 0, 1 , 0 ,-1,0 },
-					  { 1, 0 , 0 ,0, -1} //debugÓÃÐ¡ÆåÅÌ
-					};//½«ÏÂÆå³ÌÐòÐ´ÔÚÕâ
-	
-	Win_Or_Lose(arr, BLACK);//ÅÐ±ðº¯Êý
-	return 0;
-}*/ 
+void Win_Or_Lose(int board[N][N], int row, int col)
+{
+    int color = board[row][col];
+
+    if (color == EMPTY)
+    {
+        return;
+    }
+
+    const char* player = color == BLACK ? "BLACK" : "WHITE";
+
+    int directions[4][2] = {
+        {1, 0},   // ç«–ç›´
+        {0, 1},   // æ°´å¹³
+        {1, 1},   // ä¸»å¯¹è§’çº¿
+        {1, -1}   // å‰¯å¯¹è§’çº¿
+    };
+
+    for (int i = 0; i < 4; i++)
+    {
+        int count = countDirection(
+            board,
+            row,
+            col,
+            color,
+            directions[i][0],
+            directions[i][1]
+        );
+
+        if (count >= 5)
+        {
+            win(player);
+        }
+    }
+}
